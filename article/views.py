@@ -12,7 +12,18 @@ from rest_framework.views import APIView
 
 
 # Create your views here.
+class ArticleDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Article.objects.all()
+    serializer_class = ArticleDetailSerializer
 
+
+class ArticleList(generics.ListCreateAPIView):
+    queryset = Article.objects.all()
+    serializer_class = ArticleListSerializer
+
+
+"""
+Article_List 普通写法
 @api_view(['GET', 'POST'])  # 允许视图接受  GET/POST
 def article_list(request):
     if request.method == 'GET':
@@ -26,28 +37,49 @@ def article_list(request):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+"""
 
-class ArticleDetail(APIView):  # 文章详情
-    def get_object(self, pk):
-        try:
-            return Article.objects.get(pk=pk)
-        except:
-            raise Http404
+"""
+使用Mixin的写法
+class ArticleDetail(mixins.RetrieveModelMixin,
+                    mixins.UpdateModelMixin,
+                    mixins.DestroyModelMixin,
+                    generics.GenericAPIView):  # 文章详情
+    queryset = Article.objects.all()
+    serializer_class = ArticleDetailSerializer
 
-    def get(self, request, pk):
-        article = self.get_object(pk)
-        serializer = ArticleDetailSerializer(article)
-        return Response(serializer.data)
+    def get(self, request, *args, **kwargs):
+        return self.retrieve(request, *args, **kwargs)
 
-    def put(self, request, pk):
-        article = self.get_object(pk)
-        serializer = ArticleDetailSerializer(article, data=request.data)
-        if serializer.is_valid():  # 若提交的数据合法，则反序列化后保存到数据库中
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def put(self, request, *args, **kwargs):
+        return self.update(request, *args, **kwargs)
 
-    def delete(self, request, pk):
-        article = self.get_object(pk=pk)
-        article.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+    def delete(self, request, *args, **kwargs):
+        return self.destroy(request, *args, **kwargs)
+
+    #以下为普通写法
+    # def get_object(self, pk):
+    #     try:
+    #         return Article.objects.get(pk=pk)
+    #     except:
+    #         raise Http404
+    #
+    # def get(self, request, pk):
+    #     article = self.get_object(pk)
+    #     serializer = ArticleDetailSerializer(article)
+    #     return Response(serializer.data)
+    #
+    # def put(self, request, pk):
+    #     article = self.get_object(pk)
+    #     serializer = ArticleDetailSerializer(article, data=request.data)
+    #     if serializer.is_valid():  # 若提交的数据合法，则反序列化后保存到数据库中
+    #         serializer.save()
+    #         return Response(serializer.data)
+    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    #
+    # def delete(self, request, pk):
+    #     article = self.get_object(pk=pk)
+    #     article.delete()
+    #     return Response(status=status.HTTP_204_NO_CONTENT)
+
+"""
