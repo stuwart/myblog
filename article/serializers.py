@@ -1,9 +1,16 @@
 from rest_framework import serializers
+from .models import Article
 
 
-class ArticleListSerializer(serializers.Serializer):
-    id = serializers.IntegerField(read_only=True)
-    title = serializers.CharField(allow_blank=True, max_length=100)
-    body = serializers.CharField(allow_blank=True)
-    created = serializers.DateTimeField()
-    updated = serializers.DateTimeField()
+# 普通写法
+# class ArticleListSerializer(serializers.Serializer):
+#     id = serializers.IntegerField(read_only=True)
+#     title = serializers.CharField(allow_blank=True, max_length=100)
+#     body = serializers.CharField(allow_blank=True)
+#     created = serializers.DateTimeField()
+#     updated = serializers.DateTimeField()
+
+class ArticleListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Article
+        fields = '__all__'  # 表示使用所有字段

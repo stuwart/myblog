@@ -5,4 +5,5 @@ app_name = 'article'
 
 urlpatterns = [
     path('', views.article_list, name='list'),
+
 ]
