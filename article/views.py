@@ -1,18 +1,24 @@
+"""
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.http import Http404
-from article.models import Article
 # from article.serializers import ArticleListSerializer, ArticleDetailSerializer
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status, generics, mixins
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAdminUser
-from article.permissions import IsAdminUserOrReadOnly
 from django_filters.rest_framework import DjangoFilterBackend
+"""
+
+
+from article.models import Article
+from article.permissions import IsAdminUserOrReadOnly
 from rest_framework import viewsets, filters
 from article.serializers import ArticleSerializer
 
+from article.models import Category
+from article.serializers import CategorySerializer
 
 class ArticleViewSet(viewsets.ModelViewSet):  # 视图集将列表、详情逻辑都合在一起，并提供了增删改查的默认实现
     queryset = Article.objects.all()
@@ -40,7 +46,10 @@ class ArticleViewSet(viewsets.ModelViewSet):  # 视图集将列表、详情逻�
     #     else:
     #         return Serializer
 
-
+class CategoryViewSet(viewsets.ModelViewSet):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+    permission_classes = [IsAdminUserOrReadOnly]
 """
 # 最精简写法：
 class ArticleList(generics.ListCreateAPIView):  # 通用视图
