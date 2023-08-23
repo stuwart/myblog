@@ -1,5 +1,7 @@
 from rest_framework import serializers
 from .models import Article
+from user_info.serializer import UserDescSerializer
+
 
 # 普通写法
 # class ArticleListSerializer(serializers.Serializer):
@@ -10,14 +12,21 @@ from .models import Article
 #     updated = serializers.DateTimeField()
 
 class ArticleListSerializer(serializers.ModelSerializer):
+    author = UserDescSerializer(read_only=True)
+    url = serializers.HyperlinkedIdentityField(view_name="article:detail")  # view_name为路由名称，该行添加了超链接数据,自动完成动态地址映射
+
     class Meta:
-        model= Article
+        model = Article
         fields = [
-            'id',
+            # 'id',  #有了路由就不再需要超链接
+            'url',
             'title',
             'created',
+            'author'
         ]
-        read_only_fields = ['author'] #author字段设为只读
+    # read_only_fields = ['author']
+    # author字段设为只读,序列化器已设置只读，该行去掉
+
 
 class ArticleDetailSerializer(serializers.ModelSerializer):
     class Meta:
