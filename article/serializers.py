@@ -3,6 +3,14 @@ from .models import Article
 from user_info.serializer import UserDescSerializer
 
 
+class ArticleSerializer(serializers.HyperlinkedModelSerializer): #自动提供了外键字段的超链接，并且默认不包含id字段
+    author = UserDescSerializer(read_only=True)
+
+    class Meta:
+        model = Article
+        fields = '__all__'
+
+"""
 # 普通写法
 # class ArticleListSerializer(serializers.Serializer):
 #     id = serializers.IntegerField(read_only=True)
@@ -32,3 +40,4 @@ class ArticleDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Article
         fields = '__all__'
+"""
