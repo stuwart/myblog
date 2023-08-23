@@ -1,25 +1,33 @@
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.http import Http404
-
 from article.models import Article
-
 from article.serializers import ArticleListSerializer, ArticleDetailSerializer
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status, generics, mixins
 from rest_framework.views import APIView
+from rest_framework.permissions import IsAdminUser
+
+from article.permissions import IsAdminUserOrReadOnly
 
 
 # Create your views here.
+
+# 最精简写法：
+class ArticleList(generics.ListCreateAPIView):  # 通用视图
+    queryset = Article.objects.all()
+    serializer_class = ArticleListSerializer  # 序列化
+    permission_classes = [IsAdminUserOrReadOnly]  # 接收一个列表，当前表示只有管理员有权限修改 ，另外可以用 IsAuthenticated AllowAny等
+
+    def perform_create(self, serializer):  # 该函数在序列化数据保存前调用，可以在这里添加额外的数据
+        serializer.save(author=self.request.user)  # serializer参数为Serializer序列化器实例，并已经携带验证后的数据
+
+
 class ArticleDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Article.objects.all()
     serializer_class = ArticleDetailSerializer
-
-
-class ArticleList(generics.ListCreateAPIView):
-    queryset = Article.objects.all()
-    serializer_class = ArticleListSerializer
+    permission_classes = [IsAdminUserOrReadOnly]
 
 
 """

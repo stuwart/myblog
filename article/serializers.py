@@ -17,6 +17,7 @@ class ArticleListSerializer(serializers.ModelSerializer):
             'title',
             'created',
         ]
+        read_only_fields = ['author'] #author字段设为只读
 
 class ArticleDetailSerializer(serializers.ModelSerializer):
     class Meta:
