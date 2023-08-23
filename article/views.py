@@ -9,8 +9,8 @@ from rest_framework import status, generics, mixins
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAdminUser
 from article.permissions import IsAdminUserOrReadOnly
-
-from rest_framework import viewsets
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import viewsets, filters
 from article.serializers import ArticleSerializer
 
 
@@ -19,8 +19,26 @@ class ArticleViewSet(viewsets.ModelViewSet):  # 视图集将列表、详情逻�
     serializer_class = ArticleSerializer
     permission_classes = [IsAdminUserOrReadOnly]
 
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['title']
+
+    # filterset_fields = ['author__username', 'title']  #用于精确搜索
+
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
+
+    def get_queryset(self):
+        queryset = self.queryset
+        username = self.request.query_params.get('username', None)
+        if username is not None:
+            queryset = queryset.filter(author__username=username)
+        return queryset
+
+    # def get_serializer_class(self): #视图集默认只提供一个序列化容器，覆写该方法可根据条件访问不同的序列化器
+    #     if self.action == 'list':
+    #         return SomeSerializer
+    #     else:
+    #         return Serializer
 
 
 """
