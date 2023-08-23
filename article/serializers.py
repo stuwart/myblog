@@ -5,7 +5,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 
 
 class CategorySerializer(serializers.HyperlinkedModelSerializer):  # 分类的序列化器
-    url = serializers.HyperlinkedIdentityField(view_name='category-detail')
+    url = serializers.HyperlinkedIdentityField(view_name='category-detail')  # view_name为自动注册的路由名
 
     class Meta:
         model = Category
@@ -13,11 +13,12 @@ class CategorySerializer(serializers.HyperlinkedModelSerializer):  # 分类的�
         read_only_fields = ['created']
 
 
-class ArticleSerializer(serializers.HyperlinkedModelSerializer):  # 自动提供了外键字段的超链接，并且默认不包含id字段
+class ArticleSerializer(serializers.HyperlinkedModelSerializer):  # HyperlinkedModelSerializer自动提供了外键字段的超链接，并且默认不包含id字段
     author = UserDescSerializer(read_only=True)
     # filterset_fields = ['author__username', 'title']
     category = CategorySerializer(read_only=True)
-    category_id = serializers.IntegerField(write_only=True, allow_null=True, required=False)
+    category_id = serializers.IntegerField(write_only=True, allow_null=True,
+                                           required=False)  # 显式指定 category_id 字段，则此字段会自动链接到 category 外键，以便你更新外键关系。
 
     # category_id字段验证器
     def validate_category_id(self, value):
