@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User
 from django.db import models
 from django.utils import timezone
+from markdown import Markdown
 
 
 # Create your models here.
@@ -52,6 +53,17 @@ class Article(models.Model):
         blank=True,
         related_name='articles'
     )
+
+    def get_md(self):
+        md = Markdown(
+            extensions=[
+                'markdown.extensions.extra',
+                'markdown.extensions.codehilite',
+                'markdown.extensions.toc',
+            ],
+        )
+        md_body = md.convert(self.body)
+        return md_body, md.toc
 
     def __str__(self):
         return self.title

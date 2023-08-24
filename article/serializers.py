@@ -5,6 +5,19 @@ from django_filters.rest_framework import DjangoFilterBackend
 
 
 class TagSerializer(serializers.HyperlinkedModelSerializer):
+    def check_tag_obj_exist(self, validated_data):
+        text = validated_data.get('text')
+        if Tag.objects.filter(text=text).exists():
+            raise serializers.ValidationError('Tag {} 已存在'.format(text))
+
+    def create(self, validated_data):
+        self.check_tag_obj_exist(validated_data)
+        return super().create(validated_data)
+
+    def update(self, instance, validated_data):
+        self.check_tag_obj_exist(validated_data)
+        return super().update(instance, validated_data)
+
     class Meta:
         model = Tag
         fields = '__all__'
@@ -17,6 +30,8 @@ class CategorySerializer(serializers.HyperlinkedModelSerializer):  # 分类的�
         model = Category
         fields = '__all__'
         read_only_fields = ['created']
+
+
 
 
 class ArticleSerializer(serializers.HyperlinkedModelSerializer):  # HyperlinkedModelSerializer自动提供了外键字段的超链接，并且默认不包含id字段
@@ -39,6 +54,15 @@ class ArticleSerializer(serializers.HyperlinkedModelSerializer):  # HyperlinkedM
                 id=value).exists() and value is not None:  # 如果没有找到id=value的那个标签并且value不是None，那么就报错：不存在
             raise serializers.ValidationError("Category with id {} not exists.".format(value))
         return value
+
+    def to_internal_value(self, data):  # 若标签不存在就创建
+        tags_data = data.get('tags')
+
+        if isinstance(tags_data, list):  # 表示确认标签数据为列表，才会开始循环遍历
+            for text in tags_data:
+                if not Tag.objects.filter(text=text).exists():
+                    Tag.objects.create(text=text)
+        return super().to_internal_value(data)
 
     class Meta:
         model = Article

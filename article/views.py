@@ -18,7 +18,7 @@ from rest_framework import viewsets, filters
 from article.serializers import ArticleSerializer
 
 from article.models import Category,Tag
-from article.serializers import CategorySerializer, TagSerializer
+from article.serializers import CategorySerializer, TagSerializer,ArticleSerializer
 
 class ArticleViewSet(viewsets.ModelViewSet):  # 视图集将列表、详情逻辑都合在一起，并提供了增删改查的默认实现
     queryset = Article.objects.all()
@@ -40,6 +40,11 @@ class ArticleViewSet(viewsets.ModelViewSet):  # 视图集将列表、详情逻�
             queryset = queryset.filter(author__username=username)
         return queryset
 
+    def get_serializer(self):
+        if self.action == 'list':
+            return ArticleSerializer
+        else:
+            return ArticleDetailSerializer
     # def get_serializer_class(self): #视图集默认只提供一个序列化容器，覆写该方法可根据条件访问不同的序列化器
     #     if self.action == 'list':
     #         return SomeSerializer
