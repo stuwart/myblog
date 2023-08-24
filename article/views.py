@@ -40,7 +40,7 @@ class ArticleViewSet(viewsets.ModelViewSet):  # 视图集将列表、详情逻�
             queryset = queryset.filter(author__username=username)
         return queryset
 
-    def get_serializer(self):
+    def get_serializer_class(self):
         if self.action == 'list':  # 表示当前请求的动作为 ‘list’ 即获取列表
             return ArticleSerializer
         else:

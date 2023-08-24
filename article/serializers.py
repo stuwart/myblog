@@ -39,7 +39,7 @@ class ArticleBaseSerializer(serializers.HyperlinkedModelSerializer):
     category_id = serializers.IntegerField(write_only=True, allow_null=True,
                                            required=False)  # 显式指定 category_id 字段，则此字段会自动链接到 category 外键，以便你更新外键关系。
     # 当一个关联字段希望使用字符串作为唯一标识而不是id时,就可以使用SlugRelatedField。
-    tag = serializers.SlugRelatedField(
+    tags = serializers.SlugRelatedField(
         queryset=Tag.objects.all(),
         many=True,
         required=False,
@@ -52,13 +52,14 @@ class ArticleBaseSerializer(serializers.HyperlinkedModelSerializer):
             raise serializers.ValidationError("Category with id {} not exists.".format(value))
         return value
 
-    def to_internal_value(self, data):  # 若标签不存在就创建
+    def to_internal_value(self, data):
         tags_data = data.get('tags')
 
-        if isinstance(tags_data, list):  # 表示确认标签数据为列表，才会开始循环遍历
+        if isinstance(tags_data, list):
             for text in tags_data:
                 if not Tag.objects.filter(text=text).exists():
                     Tag.objects.create(text=text)
+
         return super().to_internal_value(data)
 
 

@@ -7,7 +7,7 @@ from markdown import Markdown
 # Create your models here.
 
 class Tag(models.Model):
-    text = models.CharField(max_length=100)
+    text = models.CharField(max_length=30)
 
     class Meta:
         ordering = ['-id']
@@ -38,7 +38,6 @@ class Article(models.Model):
     body = models.TextField()
     created = models.DateTimeField(default=timezone.now())
     updated = models.DateTimeField(auto_now=True)
-
     category = models.ForeignKey(
         Category,
         null=True,
@@ -46,10 +45,8 @@ class Article(models.Model):
         on_delete=models.SET_NULL,
         related_name='articles'
     )
-
-    tag = models.ManyToManyField(
+    tags = models.ManyToManyField(
         Tag,
-        null=True,
         blank=True,
         related_name='articles'
     )
