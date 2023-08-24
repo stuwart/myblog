@@ -33,7 +33,7 @@ class CategorySerializer(serializers.HyperlinkedModelSerializer):  # 分类的�
 
 
 class AvatarSerializer(serializers.ModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='avator-detail')
+    url = serializers.HyperlinkedIdentityField(view_name='avatar-detail')
 
     class Meta:
         model = Avatar
