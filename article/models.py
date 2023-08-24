@@ -4,6 +4,17 @@ from django.utils import timezone
 
 
 # Create your models here.
+
+class Tag(models.Model):
+    text = models.CharField(max_length=100)
+
+    class Meta:
+        ordering = ['-id']
+
+    def __str__(self):
+        return self.text
+
+
 class Category(models.Model):
     title = models.CharField(max_length=100)
     created = models.DateTimeField(default=timezone.now())
@@ -32,6 +43,13 @@ class Article(models.Model):
         null=True,
         blank=True,
         on_delete=models.SET_NULL,
+        related_name='articles'
+    )
+
+    tag = models.ManyToManyField(
+        Tag,
+        null=True,
+        blank=True,
         related_name='articles'
     )
 

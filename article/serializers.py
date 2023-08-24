@@ -1,7 +1,13 @@
 from rest_framework import serializers
-from .models import Article, Category
+from .models import Article, Category, Tag
 from user_info.serializer import UserDescSerializer
 from django_filters.rest_framework import DjangoFilterBackend
+
+
+class TagSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Tag
+        fields = '__all__'
 
 
 class CategorySerializer(serializers.HyperlinkedModelSerializer):  # 分类的序列化器
@@ -19,10 +25,18 @@ class ArticleSerializer(serializers.HyperlinkedModelSerializer):  # HyperlinkedM
     category = CategorySerializer(read_only=True)
     category_id = serializers.IntegerField(write_only=True, allow_null=True,
                                            required=False)  # 显式指定 category_id 字段，则此字段会自动链接到 category 外键，以便你更新外键关系。
+    # 当一个关联字段希望使用字符串作为唯一标识而不是id时,就可以使用SlugRelatedField。
+    tag = serializers.SlugRelatedField(
+        queryset=Tag.objects.all(),
+        many=True,
+        required=False,
+        slug_field='text'
+    )
 
     # category_id字段验证器
     def validate_category_id(self, value):
-        if not Category.objects.filter(id=value).exists() and value is not None:
+        if not Category.objects.filter(
+                id=value).exists() and value is not None:  # 如果没有找到id=value的那个标签并且value不是None，那么就报错：不存在
             raise serializers.ValidationError("Category with id {} not exists.".format(value))
         return value
 

@@ -17,8 +17,8 @@ from article.permissions import IsAdminUserOrReadOnly
 from rest_framework import viewsets, filters
 from article.serializers import ArticleSerializer
 
-from article.models import Category
-from article.serializers import CategorySerializer
+from article.models import Category,Tag
+from article.serializers import CategorySerializer, TagSerializer
 
 class ArticleViewSet(viewsets.ModelViewSet):  # 视图集将列表、详情逻辑都合在一起，并提供了增删改查的默认实现
     queryset = Article.objects.all()
@@ -49,6 +49,11 @@ class ArticleViewSet(viewsets.ModelViewSet):  # 视图集将列表、详情逻�
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
+    permission_classes = [IsAdminUserOrReadOnly]
+
+class TagViewSet(viewsets.ModelViewSet):
+    queryset = Tag.objects.all()
+    serializer_class = TagSerializer
     permission_classes = [IsAdminUserOrReadOnly]
 """
 # 最精简写法：
