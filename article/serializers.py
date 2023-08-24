@@ -32,9 +32,7 @@ class CategorySerializer(serializers.HyperlinkedModelSerializer):  # 分类的�
         read_only_fields = ['created']
 
 
-
-
-class ArticleSerializer(serializers.HyperlinkedModelSerializer):  # HyperlinkedModelSerializer自动提供了外键字段的超链接，并且默认不包含id字段
+class ArticleBaseSerializer(serializers.HyperlinkedModelSerializer):
     author = UserDescSerializer(read_only=True)
     # filterset_fields = ['author__username', 'title']
     category = CategorySerializer(read_only=True)
@@ -48,8 +46,7 @@ class ArticleSerializer(serializers.HyperlinkedModelSerializer):  # HyperlinkedM
         slug_field='text'
     )
 
-    # category_id字段验证器
-    def validate_category_id(self, value):
+    def validate_category_id(self, value):  # 验证category字段
         if not Category.objects.filter(
                 id=value).exists() and value is not None:  # 如果没有找到id=value的那个标签并且value不是None，那么就报错：不存在
             raise serializers.ValidationError("Category with id {} not exists.".format(value))
@@ -63,6 +60,24 @@ class ArticleSerializer(serializers.HyperlinkedModelSerializer):  # HyperlinkedM
                 if not Tag.objects.filter(text=text).exists():
                     Tag.objects.create(text=text)
         return super().to_internal_value(data)
+
+
+class ArticleSerializer(ArticleBaseSerializer):  # HyperlinkedModelSerializer自动提供了外键字段的超链接，并且默认不包含id字段
+    class Meta:
+        model = Article
+        fields = '__all__'
+        extra_kwargs = {'body': {'write_only': True}}  # 让body字段不在列表显示
+
+
+class ArticleDetailSerializer(ArticleBaseSerializer):
+    body_html = serializers.SerializerMethodField()
+    toc_html = serializers.SerializerMethodField()
+
+    def get_body_html(self, obj):
+        return obj.get_md()[0]
+
+    def get_toc_html(self, obj):
+        return obj.get_md()[1]
 
     class Meta:
         model = Article
