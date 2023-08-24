@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Article, Category, Tag
+from .models import Article, Category, Tag, Avatar
 from user_info.serializer import UserDescSerializer
 from django_filters.rest_framework import DjangoFilterBackend
 
@@ -24,12 +24,20 @@ class TagSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class CategorySerializer(serializers.HyperlinkedModelSerializer):  # 分类的序列化器
-    url = serializers.HyperlinkedIdentityField(view_name='category-detail')  # view_name为自动注册的路由名
+    url = serializers.HyperlinkedIdentityField(view_name='category-detail')  # view_name为自动注册的路由名 /category/detail
 
     class Meta:
         model = Category
         fields = '__all__'
         read_only_fields = ['created']
+
+
+class AvatarSerializer(serializers.ModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='avator-detail')
+
+    class Meta:
+        model = Avatar
+        fields = '__all__'
 
 
 class ArticleBaseSerializer(serializers.HyperlinkedModelSerializer):
@@ -45,11 +53,22 @@ class ArticleBaseSerializer(serializers.HyperlinkedModelSerializer):
         required=False,
         slug_field='text'
     )
+    avatar = AvatarSerializer(read_only=True)
+    avatar_id = serializers.IntegerField(
+        write_only=True,
+        allow_null=True,
+        required=False
+    )
 
-    def validate_category_id(self, value):  # 验证category字段
+    def validate_category_id(self, value):  # 验证category_id字段
         if not Category.objects.filter(
                 id=value).exists() and value is not None:  # 如果没有找到id=value的那个标签并且value不是None，那么就报错：不存在
             raise serializers.ValidationError("Category with id {} not exists.".format(value))
+        return value
+
+    def validate_avatar_id(self, value):
+        if not Avatar.objects.filter(id=value).exists() and value is not None:
+            raise serializers.ValidationError('Avatar with id {} not exists.'.format(value))
         return value
 
     def to_internal_value(self, data):

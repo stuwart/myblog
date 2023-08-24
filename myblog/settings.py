@@ -129,3 +129,6 @@ REST_FRAMEWORK = {
     # 通用过滤
     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend']
 }
+
+MEDIA_URL= '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR,'media')

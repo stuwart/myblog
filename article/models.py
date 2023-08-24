@@ -26,6 +26,8 @@ class Category(models.Model):
     def __str__(self):  # 定义了将模型显示为字符串时的内容。
         return self.title
 
+class Avatar(models.Model):
+    content = models.ImageField(upload_to='avatar/%Y%m%d')
 
 class Article(models.Model):
     author = models.ForeignKey(
@@ -50,7 +52,13 @@ class Article(models.Model):
         blank=True,
         related_name='articles'
     )
-
+    avatar = models.ForeignKey(
+        Avatar,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='articles'
+    )
     def get_md(self):
         md = Markdown(
             extensions=[
